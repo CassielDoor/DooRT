@@ -95,7 +95,7 @@ void dsEvent::dsEventWakeAll(void) {    //删除事件组时唤醒全部等待�
     for (uint16_t i = 0; i < n; i++) dTaskTargetReady(wakeList[i]);
 }
 
-dsEventHandle dsEventCreate(void) {
+dsEventHandle dseCreate(void) {
     uint16_t id = dmhAlloc(sizeof(dsEvent));    //从堆分配对象
     if (id == DSE_INVALID_HANDLE) return DSE_INVALID_HANDLE;
 
@@ -109,7 +109,7 @@ dsEventHandle dsEventCreate(void) {
     return id;
 }
 
-void dsEventDelete(dsEventHandle handle) {
+void dseDelete(dsEventHandle handle) {
     DISABLE_IRQ();
     dsEvent* eg = dsEventDereference(handle);
     if (eg == nullptr) {
@@ -120,7 +120,7 @@ void dsEventDelete(dsEventHandle handle) {
     dmhFree(handle);
 }
 
-bool dsEventSet(dsEventHandle handle, uint32_t flags) {
+bool dseSet(dsEventHandle handle, uint32_t flags) {
     DISABLE_IRQ();      //关中断保证解引用+使用原子
     dsEvent* eg = dsEventDereference(handle);
     if (eg == nullptr) {
@@ -132,7 +132,7 @@ bool dsEventSet(dsEventHandle handle, uint32_t flags) {
     return r;
 }
 
-bool dsEventClear(dsEventHandle handle, uint32_t flags) {
+bool dseClear(dsEventHandle handle, uint32_t flags) {
     DISABLE_IRQ();
     dsEvent* eg = dsEventDereference(handle);
     if (eg == nullptr) {
@@ -144,7 +144,7 @@ bool dsEventClear(dsEventHandle handle, uint32_t flags) {
     return r;
 }
 
-bool dsEventWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
+bool dseWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
     if (flags == 0) return false;
 
     DISABLE_IRQ();
@@ -158,7 +158,7 @@ bool dsEventWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
     return r;
 }
 
-bool dsEventTryWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
+bool dseTryWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
     if (flags == 0) return false;
 
     DISABLE_IRQ();
@@ -172,7 +172,7 @@ bool dsEventTryWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
     return r;
 }
 
-uint32_t dsEventGetFlags(dsEventHandle handle) {
+uint32_t dseGetFlags(dsEventHandle handle) {
     DISABLE_IRQ();
     dsEvent* eg = dsEventDereference(handle);
     if (eg == nullptr) {

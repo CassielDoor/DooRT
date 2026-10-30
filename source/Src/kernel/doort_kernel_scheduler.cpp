@@ -91,7 +91,7 @@ void dkScheduler::dksStartScheduler(void) {
 
     dUserInit();
 
-    dLog("\n[info]: Now SysTick: %d(us)\nNow CoreFreq: %d(Hz)", gState.dgsSysTick, gState.dgsCoreFreq);
+    dLog("\n[info]: Now SysTick: %d(us)\nNow CoreFreq: %d(Hz)\n", gState.dgsSysTick, gState.dgsCoreFreq);
     dp.dpSetSysTick(gState.dgsCoreFreq, gState.dgsSysTick);
     dksStartFirstTask();
 }

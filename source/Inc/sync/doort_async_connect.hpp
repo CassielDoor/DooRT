@@ -29,11 +29,11 @@ public:
 };
 
 // 内部接口: 供 doort.cpp 中转调用, 与 doort.h 公开 C API 一一对应
-daSignalHandle daConnectSignalCreate(uint16_t slotCapacity);
-daSlotHandle   daConnectSlotCreate(dTaskRef task, void (*slotFunction)(void*), void* context);
-bool daConnectSignalConnect(daSignalHandle signal, daSlotHandle slot);
-bool daConnectSignalDisconnect(daSignalHandle signal, daSlotHandle slot);
-bool daConnectSignalTrigger(daSignalHandle signal, void* argument);
+daSignalHandle dacCreate(uint16_t slotCapacity);
+daSlotHandle   dacSlotCreate(dTaskRef task, void (*slotFunction)(void*), void* context);
+bool dacConnect(daSignalHandle signal, daSlotHandle slot);
+bool dacDisconnect(daSignalHandle signal, daSlotHandle slot);
+bool dacTrigger(daSignalHandle signal, void* argument);
 
 // 内核内部: 任务切换进/启动时排空其延迟回调
 void daConnectSignalDrainTask(dTaskRef task);

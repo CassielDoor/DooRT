@@ -32,7 +32,12 @@ else()
     set(DOORT_STANDALONE OFF)
 endif()
 
-add_library(doort STATIC
+# 用 OBJECT 库而不是 STATIC:
+#   内核里的 SVC/PendSV/SysTick/HardFault 在启动文件里都有同名弱定义,
+#   如果打成 .a, 链接器发现符号已经"被满足"就不会把对应 .o 拉进来, 向量表会停在
+#   Default_Handler 上。OBJECT 库的所有 .o 都直接进最终链接, 强定义自然覆盖弱定义,
+#   不需要任何 --whole-archive 之类的链接器参数。
+add_library(doort OBJECT
     # 公共 C API
     source/Src/doort.cpp
 

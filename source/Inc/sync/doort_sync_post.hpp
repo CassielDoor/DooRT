@@ -45,14 +45,14 @@ public:
 };
 
 //内部接口 中转调用
-dsPostHandle dsPostPostCreate(uint16_t capacity, uint8_t overflowPolicy);
-void dsPostPostDelete(dsPostHandle handle);
-bool dsPostPostSend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent);
-bool dsPostPostTrySend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent);
-bool dsPostPostSendWait(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent, uint32_t ticks);
-uint16_t dsPostPostRecv(dsPostHandle handle);
-uint16_t dsPostPostTryRecv(dsPostHandle handle);
-uint16_t dsPostPostRecvWait(dsPostHandle handle, dsPostSubject subject, uint32_t ticks);
-uint16_t dsPostPostCount(dsPostHandle handle);
+dsPostHandle dspCreate(uint16_t capacity, uint8_t overflowPolicy);
+void dspDelete(dsPostHandle handle);
+bool dspSend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent);
+bool dspTrySend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent);
+bool dspSendWait(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent, uint32_t ticks);
+uint16_t dspRecv(dsPostHandle handle);
+uint16_t dspTryRecv(dsPostHandle handle);
+uint16_t dspRecvWait(dsPostHandle handle, dsPostSubject subject, uint32_t ticks);
+uint16_t dspCount(dsPostHandle handle);
 
 #endif      /* DOORT_SYNC_POST_HPP */

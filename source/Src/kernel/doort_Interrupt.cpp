@@ -7,10 +7,6 @@
 
 #include "doort_config.h"
 
-#if UART_HARD_FAULT_OUTPUT
-#include "stm32f4xx.h"      // USART1 / USART_TypeDef / USART_SR_TXE 等
-#endif
-
 extern volatile dgState gState;
 extern dkScheduler kScheduler;
 volatile uint32_t g_fault_frame[8];     //栈帧
@@ -26,29 +22,6 @@ void NMI_Handler(void)
     {
     }
 }
-
-#if UART_HARD_FAULT_OUTPUT
-/* ---------- 轮询 UART 输出 (fault 上下文安全, 不依赖 HAL tick/中断) ---------- */
-static void dfUartPutChar(char c) {
-    USART_TypeDef *u = USART1;
-    while (!(u->SR & USART_SR_TXE)) {}
-    u->DR = (uint8_t)c;
-}
-static void dfUartPutStr(const char *s) {
-    while (*s) dfUartPutChar(*s++);
-}
-static void dfUartPutHex32(uint32_t v) {
-    static const char hex[] = "0123456789ABCDEF";
-    for (int i = 28; i >= 0; i -= 4)
-        dfUartPutChar(hex[(v >> i) & 0xF]);
-}
-static void dfUartPutU32(uint32_t v, const char *name) {
-    dfUartPutStr(name);
-    dfUartPutStr("=0x");
-    dfUartPutHex32(v);
-    dfUartPutStr("\r\n");
-}
-#endif
 
 /**
     * @brief This function handles Hard fault interrupt.
@@ -77,26 +50,9 @@ void HardFault_Handler(void)
     // g_fault_frame = [R0,R1,R2,R3, R12,LR,PC,xPSR]
 
     // 系统控制块寄存器
-    uint32_t cfsr  = *(volatile uint32_t *)0xE000ED28UL;
-    uint32_t mmfar = *(volatile uint32_t *)0xE000ED34UL;
-    uint32_t bfar  = *(volatile uint32_t *)0xE000ED38UL;
-
-    #if UART_HARD_FAULT_OUTPUT
-    dfUartPutStr("\r\n================= HardFault =================\r\n");
-    dfUartPutU32(cfsr,  "CFSR");
-    dfUartPutU32(bfar,  "BFAR");
-    dfUartPutU32(mmfar, "MMFAR");
-    dfUartPutU32(g_fault_frame[6], "PC ");
-    dfUartPutU32(g_fault_frame[5], "LR ");
-    dfUartPutU32(g_fault_frame[7], "xPSR");
-    dfUartPutU32(stackPtr, "SP ");
-    dfUartPutU32(g_fault_frame[0], "R0 ");
-    dfUartPutU32(g_fault_frame[1], "R1 ");
-    dfUartPutU32(g_fault_frame[2], "R2 ");
-    dfUartPutU32(g_fault_frame[3], "R3 ");
-    dfUartPutU32(g_fault_frame[4], "R12");
-    dfUartPutStr("=============================================\r\n");
-    #endif
+    //uint32_t cfsr  = *(volatile uint32_t *)0xE000ED28UL;
+    //uint32_t mmfar = *(volatile uint32_t *)0xE000ED34UL;
+    //uint32_t bfar  = *(volatile uint32_t *)0xE000ED38UL;
 
     while (1)
     {

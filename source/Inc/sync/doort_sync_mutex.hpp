@@ -28,10 +28,10 @@ public:
 };
 
 //内部接口 中转调用
-dsMutexHandle dsMutexCreate(void);
-void dsMutexDelete(dsMutexHandle handle);
-bool dsMutexLock(dsMutexHandle handle);
-bool dsMutexTryLock(dsMutexHandle handle);
-bool dsMutexUnlock(dsMutexHandle handle);
+dsMutexHandle dsmCreate(void);
+void dsmDelete(dsMutexHandle handle);
+bool dsmLock(dsMutexHandle handle);
+bool dsmTryLock(dsMutexHandle handle);
+bool dsmUnlock(dsMutexHandle handle);
 
 #endif      //DOORT_SYNC_MUTEX_HPP

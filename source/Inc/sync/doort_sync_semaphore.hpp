@@ -26,10 +26,10 @@ public:
 };
 
 //内部接口 中转调用
-dsSemHandle dsSemaphoreCreate(uint16_t maxCount, uint16_t initCount);
-void dsSemaphoreDelete(dsSemHandle handle);
-bool dsSemaphoreGive(dsSemHandle handle);
-bool dsSemaphoreTake(dsSemHandle handle);
-bool dsSemaphoreTryTake(dsSemHandle handle);
+dsSemHandle dssCreate(uint16_t maxCount, uint16_t initCount);
+void dssDelete(dsSemHandle handle);
+bool dssGive(dsSemHandle handle);
+bool dssTake(dsSemHandle handle);
+bool dssTryTake(dsSemHandle handle);
 
 #endif      /* DOORT_SYNC_SEMAPHORE_HPP */

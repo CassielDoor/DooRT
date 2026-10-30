@@ -33,12 +33,12 @@ public:
 };
 
 //内部接口 中转调用
-dsEventHandle dsEventCreate(void);
-void dsEventDelete(dsEventHandle handle);
-bool dsEventSet(dsEventHandle handle, uint32_t flags);
-bool dsEventClear(dsEventHandle handle, uint32_t flags);
-bool dsEventWait(dsEventHandle handle, uint32_t flags, bool waitAll);
-bool dsEventTryWait(dsEventHandle handle, uint32_t flags, bool waitAll);
-uint32_t dsEventGetFlags(dsEventHandle handle);
+dsEventHandle dseCreate(void);
+void dseDelete(dsEventHandle handle);
+bool dseSet(dsEventHandle handle, uint32_t flags);
+bool dseClear(dsEventHandle handle, uint32_t flags);
+bool dseWait(dsEventHandle handle, uint32_t flags, bool waitAll);
+bool dseTryWait(dsEventHandle handle, uint32_t flags, bool waitAll);
+uint32_t dseGetFlags(dsEventHandle handle);
 
 #endif      /* DOORT_SYNC_EVENT_HPP */

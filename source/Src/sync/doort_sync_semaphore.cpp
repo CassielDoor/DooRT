@@ -71,7 +71,7 @@ void dsSemaphore::dsSemWakeAll(void) {      //删除信号量时唤醒全部等�
     for (uint16_t i = 0; i < n; i++) dTaskTargetReady(wakeList[i]);
 }
 
-dsSemHandle dsSemaphoreCreate(uint16_t maxCount, uint16_t initCount) {
+dsSemHandle dssCreate(uint16_t maxCount, uint16_t initCount) {
     if (maxCount == 0) return DSS_INVALID_HANDLE;
     if (initCount > maxCount) initCount = maxCount;
     uint16_t id = dmhAlloc(sizeof(dsSemaphore));    //从堆分配对象
@@ -85,7 +85,7 @@ dsSemHandle dsSemaphoreCreate(uint16_t maxCount, uint16_t initCount) {
     return id;
 }
 
-void dsSemaphoreDelete(dsSemHandle handle) {
+void dssDelete(dsSemHandle handle) {
     DISABLE_IRQ();
     dsSemaphore* sm = dsSemDereference(handle);
     if (sm == nullptr) {
@@ -96,7 +96,7 @@ void dsSemaphoreDelete(dsSemHandle handle) {
     dmhFree(handle);
 }
 
-bool dsSemaphoreGive(dsSemHandle handle) {
+bool dssGive(dsSemHandle handle) {
     DISABLE_IRQ();      //关中断保证解引用+使用原子(防压缩搬移)
     dsSemaphore* sm = dsSemDereference(handle);
     if (sm == nullptr) {
@@ -108,7 +108,7 @@ bool dsSemaphoreGive(dsSemHandle handle) {
     return r;
 }
 
-bool dsSemaphoreTake(dsSemHandle handle) {
+bool dssTake(dsSemHandle handle) {
     DISABLE_IRQ();
     dsSemaphore* sm = dsSemDereference(handle);
     if (sm == nullptr) {
@@ -120,7 +120,7 @@ bool dsSemaphoreTake(dsSemHandle handle) {
     return r;
 }
 
-bool dsSemaphoreTryTake(dsSemHandle handle) {
+bool dssTryTake(dsSemHandle handle) {
     DISABLE_IRQ();
     dsSemaphore* sm = dsSemDereference(handle);
     if (sm == nullptr) {

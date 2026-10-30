@@ -1,5 +1,4 @@
 #include <stddef.h>
-#include <new>
 #include <stdint.h>
 
 #include "doort_memory_manage.hpp"
@@ -216,42 +215,42 @@ void dHeapFree(uint16_t id) {
 //每个 API 一句话转发到 sync 原语自己的 cpp 内部接口
 
 //信号量
-dsSemHandle dsSemCreate(uint16_t maxCount, uint16_t initCount) { return dsSemaphoreCreate(maxCount, initCount); }
-void dsSemDelete(dsSemHandle handle) { dsSemaphoreDelete(handle); }
-bool dsSemGive(dsSemHandle handle) { return dsSemaphoreGive(handle); }
-bool dsSemTake(dsSemHandle handle) { return dsSemaphoreTake(handle); }
-bool dsSemTryTake(dsSemHandle handle) { return dsSemaphoreTryTake(handle); }
+dsSemHandle dsSemCreate(uint16_t maxCount, uint16_t initCount) { return dssCreate(maxCount, initCount); }
+void dsSemDelete(dsSemHandle handle) { dssDelete(handle); }
+bool dsSemGive(dsSemHandle handle) { return dssGive(handle); }
+bool dsSemTake(dsSemHandle handle) { return dssTake(handle); }
+bool dsSemTryTake(dsSemHandle handle) { return dssTryTake(handle); }
 
 //互斥量(优先级继承)
-dsMutexHandle dsMutexCreate(void) { return dsMutexCreate(); }
-void dsMutexDelete(dsMutexHandle handle) { dsMutexDelete(handle); }
-bool dsMutexLock(dsMutexHandle handle) { return dsMutexLock(handle); }
-bool dsMutexTryLock(dsMutexHandle handle) { return dsMutexTryLock(handle); }
-bool dsMutexUnlock(dsMutexHandle handle) { return dsMutexUnlock(handle); }
+dsMutexHandle dsMutexCreate(void) { return dsmCreate(); }
+void dsMutexDelete(dsMutexHandle handle) { dsmDelete(handle); }
+bool dsMutexLock(dsMutexHandle handle) { return dsmLock(handle); }
+bool dsMutexTryLock(dsMutexHandle handle) { return dsmTryLock(handle); }
+bool dsMutexUnlock(dsMutexHandle handle) { return dsmUnlock(handle); }
 
 //事件组
-dsEventHandle dsEventCreate(void) { return dsEventCreate(); }
-void dsEventDelete(dsEventHandle handle) { dsEventDelete(handle); }
-bool dsEventSet(dsEventHandle handle, uint32_t flags) { return dsEventSet(handle, flags); }
-bool dsEventClear(dsEventHandle handle, uint32_t flags) { return dsEventClear(handle, flags); }
-bool dsEventWait(dsEventHandle handle, uint32_t flags, bool waitAll) { return dsEventWait(handle, flags, waitAll); }
-bool dsEventTryWait(dsEventHandle handle, uint32_t flags, bool waitAll) { return dsEventTryWait(handle, flags, waitAll); }
-uint32_t dsEventGetFlags(dsEventHandle handle) { return dsEventGetFlags(handle); }
+dsEventHandle dsEventCreate(void) { return dseCreate(); }
+void dsEventDelete(dsEventHandle handle) { dseDelete(handle); }
+bool dsEventSet(dsEventHandle handle, uint32_t flags) { return dseSet(handle, flags); }
+bool dsEventClear(dsEventHandle handle, uint32_t flags) { return dseClear(handle, flags); }
+bool dsEventWait(dsEventHandle handle, uint32_t flags, bool waitAll) { return dseWait(handle, flags, waitAll); }
+bool dsEventTryWait(dsEventHandle handle, uint32_t flags, bool waitAll) { return dseTryWait(handle, flags, waitAll); }
+uint32_t dsEventGetFlags(dsEventHandle handle) { return dseGetFlags(handle); }
 
 //邮箱(post)
-dsPostHandle dsPostCreate(uint16_t capacity, uint8_t overflowPolicy) { return dsPostPostCreate(capacity, overflowPolicy); }
-void dsPostDelete(dsPostHandle handle) { dsPostPostDelete(handle); }
-bool dsPostSend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent) { return dsPostPostSend(handle, mailId, subject, urgent); }
-bool dsPostTrySend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent) { return dsPostPostTrySend(handle, mailId, subject, urgent); }
-bool dsPostSendWait(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent, uint32_t ticks) { return dsPostPostSendWait(handle, mailId, subject, urgent, ticks); }
-uint16_t dsPostRecv(dsPostHandle handle) { return dsPostPostRecv(handle); }
-uint16_t dsPostTryRecv(dsPostHandle handle) { return dsPostPostTryRecv(handle); }
-uint16_t dsPostRecvWait(dsPostHandle handle, dsPostSubject subject, uint32_t ticks) { return dsPostPostRecvWait(handle, subject, ticks); }
-uint16_t dsPostCount(dsPostHandle handle) { return dsPostPostCount(handle); }
+dsPostHandle dsPostCreate(uint16_t capacity, uint8_t overflowPolicy) { return dspCreate(capacity, overflowPolicy); }
+void dsPostDelete(dsPostHandle handle) { dspDelete(handle); }
+bool dsPostSend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent) { return dspSend(handle, mailId, subject, urgent); }
+bool dsPostTrySend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent) { return dspTrySend(handle, mailId, subject, urgent); }
+bool dsPostSendWait(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent, uint32_t ticks) { return dspSendWait(handle, mailId, subject, urgent, ticks); }
+uint16_t dsPostRecv(dsPostHandle handle) { return dspRecv(handle); }
+uint16_t dsPostTryRecv(dsPostHandle handle) { return dspTryRecv(handle); }
+uint16_t dsPostRecvWait(dsPostHandle handle, dsPostSubject subject, uint32_t ticks) { return dspRecvWait(handle, subject, ticks); }
+uint16_t dsPostCount(dsPostHandle handle) { return dspCount(handle); }
 
 //异步信号槽(connect)
-daSignalHandle daConnectCreate(uint16_t slotCapacity) { return daConnectSignalCreate(slotCapacity); }
-daSlotHandle   daConnectSlot(dTaskRef task, void (*fn)(void*), void* ctx) { return daConnectSlotCreate(task, fn, ctx); }
-bool daConnect(daSignalHandle sig, daSlotHandle slot) { return daConnectSignalConnect(sig, slot); }
-bool daDisconnect(daSignalHandle sig, daSlotHandle slot) { return daConnectSignalDisconnect(sig, slot); }
-bool daConnectTrigger(daSignalHandle sig, void* arg) { return daConnectSignalTrigger(sig, arg); }
+daSignalHandle daConnectCreate(uint16_t slotCapacity) { return dacCreate(slotCapacity); }
+daSlotHandle   daConnectSlot(dTaskRef task, void (*fn)(void*), void* ctx) { return dacSlotCreate(task, fn, ctx); }
+bool daConnect(daSignalHandle sig, daSlotHandle slot) { return dacConnect(sig, slot); }
+bool daDisconnect(daSignalHandle sig, daSlotHandle slot) { return dacDisconnect(sig, slot); }
+bool daConnectTrigger(daSignalHandle sig, void* arg) { return dacTrigger(sig, arg); }
