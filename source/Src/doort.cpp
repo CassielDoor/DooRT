@@ -174,8 +174,10 @@ uint8_t  GetTaskStatu(void) {
 }
 
 uint8_t GetCurrentReadyTaskCount(void) {
-    int i = 0;
-    for(; gState.dgsTaskQueneHead[i].queuePriority != (kScheduler.dksGetCurrentTask())->dtPriority; i++);       //使用二分查找
+    dTaskControlBlock *current = kScheduler.dksGetCurrentTask();
+    if (current == nullptr) return 0U;
+    int i = kScheduler.dksFindQueueIndex(current->dtPriority);   //二分查找, 找不到返回 -1
+    if (i < 0) return 0U;
     return gState.dgsTaskQueneHead[i].readyTask;
 }
 

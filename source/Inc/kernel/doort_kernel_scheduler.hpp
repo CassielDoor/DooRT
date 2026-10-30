@@ -49,6 +49,9 @@ public:
 
     void dksSetBitMap(uint8_t bitPos, bool isBitSetTrue);
 
+    // 按优先级值查队列下标: 队列按 queuePriority 升序, 二分查找, 找不到返回 -1
+    int dksFindQueueIndex(int8_t priority);
+
     void dksSetTaskPriority(dTaskControlBlock *tcb, int8_t newPriority);    //任务优先级调整工具(同步原语优先级继承可复用)
     void dksMemoryTaskUpdate(void);                                         //内存紧缩任务跟随当前运行优先级, 无紧缩需求时挂起
 };

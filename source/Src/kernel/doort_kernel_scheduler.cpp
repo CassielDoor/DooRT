@@ -143,16 +143,8 @@ void dkScheduler::dksSwapTask(void) {
 
 void dkScheduler::dksModifyCountAndMap(dTaskControlBlock *tcb, bool increment) {
     dTaskControlBlock *temp = tcb;
-    // 队列按 queuePriority 升序排列, 二分查找替代原线性扫描("待修改"项)
-    int low = 0, high = gState.dgsPrioritiesNum - 1;
-    int i = -1;
-    while (low <= high) {
-        int mid = low + (high - low) / 2;
-        int8_t p = gState.dgsTaskQueneHead[mid].queuePriority;
-        if (p == temp->dtPriority) { i = mid; break; }
-        else if (p < temp->dtPriority) low = mid + 1;
-        else high = mid - 1;
-    }
+    // 队列按 queuePriority 升序排列, 统一走 dksFindQueueIndex() 的二分查找
+    int i = dksFindQueueIndex(temp->dtPriority);
     if (i < 0) return;      // 未找到对应优先级: 防越界, 不修改计数/位图
     if (increment) {
         if(!gState.dgsTaskQueneHead[i].readyTask) dksSetBitMap(i, 1);
@@ -165,9 +157,17 @@ void dkScheduler::dksModifyCountAndMap(dTaskControlBlock *tcb, bool increment) {
 }
 
 //按优先级值查找队列下标, 找不到返回-1
-static int dksFindQueueIndex(int8_t priority) {
-    for (int i = 0; i < gState.dgsPrioritiesNum; i++)
-        if (gState.dgsTaskQueneHead[i].queuePriority == priority) return i;
+//队列按 queuePriority 升序排列, 用二分查找: O(log n) 而不是线性扫描
+int dkScheduler::dksFindQueueIndex(int8_t priority) {
+    int low = 0;
+    int high = (int)gState.dgsPrioritiesNum - 1;
+    while (low <= high) {
+        int mid = low + ((high - low) >> 1);
+        int8_t p = gState.dgsTaskQueneHead[mid].queuePriority;
+        if (p == priority) return mid;
+        if (p < priority) low = mid + 1;
+        else high = mid - 1;
+    }
     return -1;
 }
 

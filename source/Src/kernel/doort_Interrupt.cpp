@@ -34,14 +34,14 @@ void HardFault_Handler(void)
 
     // 取栈指针(MSP 还是 PSP 由 EXC_RETURN.bit2 决定), 并抓硬件栈帧 R0-R3,R12,LR,PC,xPSR
     __asm volatile (
-        "tst  lr, #4                    \n"
-        "ite  eq                        \n"
+        "tst  lr, #4               \n"
+        "ite  eq                   \n"
         "mrseq r0, msp             \n"
         "mrsne r0, psp             \n"
         "mov  %0, r0               \n"
         "ldmia r0!, {r1-r4}        \n"
         "stmia %[arr]!, {r1-r4}    \n"
-        "ldmia r0!, {r1-r4}         \n"
+        "ldmia r0!, {r1-r4}        \n"
         "stmia %[arr]!, {r1-r4}    \n"
         : "=r"(stackPtr)
         : [arr] "r" (g_fault_frame)
