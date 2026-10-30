@@ -95,7 +95,7 @@ void dsEvent::dsEventWakeAll(void) {    //删除事件组时唤醒全部等待�
     for (uint16_t i = 0; i < n; i++) dTaskTargetReady(wakeList[i]);
 }
 
-dsEventHandle dseCreate(void) {
+dsEventHandle dsEventCreate(void) {
     uint16_t id = dmhAlloc(sizeof(dsEvent));    //从堆分配对象
     if (id == DSE_INVALID_HANDLE) return DSE_INVALID_HANDLE;
 
@@ -109,7 +109,7 @@ dsEventHandle dseCreate(void) {
     return id;
 }
 
-void dseDelete(dsEventHandle handle) {
+void dsEventDelete(dsEventHandle handle) {
     DISABLE_IRQ();
     dsEvent* eg = dsEventDereference(handle);
     if (eg == nullptr) {
@@ -120,7 +120,7 @@ void dseDelete(dsEventHandle handle) {
     dmhFree(handle);
 }
 
-bool dseSet(dsEventHandle handle, uint32_t flags) {
+bool dsEventSet(dsEventHandle handle, uint32_t flags) {
     DISABLE_IRQ();      //关中断保证解引用+使用原子
     dsEvent* eg = dsEventDereference(handle);
     if (eg == nullptr) {
@@ -132,7 +132,7 @@ bool dseSet(dsEventHandle handle, uint32_t flags) {
     return r;
 }
 
-bool dseClear(dsEventHandle handle, uint32_t flags) {
+bool dsEventClear(dsEventHandle handle, uint32_t flags) {
     DISABLE_IRQ();
     dsEvent* eg = dsEventDereference(handle);
     if (eg == nullptr) {
@@ -144,7 +144,7 @@ bool dseClear(dsEventHandle handle, uint32_t flags) {
     return r;
 }
 
-bool dseWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
+bool dsEventWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
     if (flags == 0) return false;
 
     DISABLE_IRQ();
@@ -158,7 +158,7 @@ bool dseWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
     return r;
 }
 
-bool dseTryWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
+bool dsEventTryWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
     if (flags == 0) return false;
 
     DISABLE_IRQ();
@@ -172,7 +172,7 @@ bool dseTryWait(dsEventHandle handle, uint32_t flags, bool waitAll) {
     return r;
 }
 
-uint32_t dseGetFlags(dsEventHandle handle) {
+uint32_t dsEventGetFlags(dsEventHandle handle) {
     DISABLE_IRQ();
     dsEvent* eg = dsEventDereference(handle);
     if (eg == nullptr) {

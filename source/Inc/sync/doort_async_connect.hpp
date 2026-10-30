@@ -28,14 +28,7 @@ public:
     bool  daTrigger(void* argument);
 };
 
-// 内部接口: 供 doort.cpp 中转调用, 与 doort.h 公开 C API 一一对应
-daSignalHandle dacCreate(uint16_t slotCapacity);
-daSlotHandle   dacSlotCreate(dTaskRef task, void (*slotFunction)(void*), void* context);
-bool dacConnect(daSignalHandle signal, daSlotHandle slot);
-bool dacDisconnect(daSignalHandle signal, daSlotHandle slot);
-bool dacTrigger(daSignalHandle signal, void* argument);
-
-// 内核内部: 任务切换进/启动时排空其延迟回调
+// 内核内部用: 任务切换进入/启动时排空该任务的延迟回调 (dTaskDelay/dTaskSuspend 等会调)
 void daConnectSignalDrainTask(dTaskRef task);
 
 #endif      /* DOORT_ASYNC_CONNECT_HPP */

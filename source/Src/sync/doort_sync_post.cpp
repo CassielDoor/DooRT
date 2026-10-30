@@ -253,7 +253,7 @@ void dsPostPost::dsPostCancelWaiters(void) {    //撤销全部等待者的内核
 }
 
 
-dsPostHandle dspCreate(uint16_t capacity, uint8_t overflowPolicy) {
+dsPostHandle dsPostCreate(uint16_t capacity, uint8_t overflowPolicy) {
     if (capacity == 0) return DSP_INVALID_HANDLE;
     if (overflowPolicy > DSP_OVERFLOW_DROP_NEWEST) overflowPolicy = DSP_OVERFLOW_BLOCK;
 
@@ -276,7 +276,7 @@ dsPostHandle dspCreate(uint16_t capacity, uint8_t overflowPolicy) {
     return id;
 }
 
-void dspDelete(dsPostHandle handle) {
+void dsPostDelete(dsPostHandle handle) {
     DISABLE_IRQ();
     dsPostPost* p = dsPostDereference(handle);
     if (p == nullptr) {
@@ -314,15 +314,15 @@ void dspDelete(dsPostHandle handle) {
     for (uint16_t i = 0; i < m; i++) dTaskTargetReady(sw[i]);
 }
 
-bool dspSend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent) {
-    return dspSendWait(handle, mailId, subject, urgent, DSP_WAIT_FOREVER);
+bool dsPostSend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent) {
+    return dsPostSendWait(handle, mailId, subject, urgent, DSP_WAIT_FOREVER);
 }
 
-bool dspTrySend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent) {
-    return dspSendWait(handle, mailId, subject, urgent, DSP_NO_WAIT);
+bool dsPostTrySend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent) {
+    return dsPostSendWait(handle, mailId, subject, urgent, DSP_NO_WAIT);
 }
 
-bool dspSendWait(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent, uint32_t ticks) {
+bool dsPostSendWait(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent, uint32_t ticks) {
     DISABLE_IRQ();      //关中断保证解引用+使用原子
     dsPostPost* p = dsPostDereference(handle);
     if (p == nullptr) {
@@ -334,15 +334,15 @@ bool dspSendWait(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool ur
     return r;
 }
 
-uint16_t dspRecv(dsPostHandle handle) {
-    return dspRecvWait(handle, DSP_SUBJECT_ANY, DSP_WAIT_FOREVER);
+uint16_t dsPostRecv(dsPostHandle handle) {
+    return dsPostRecvWait(handle, DSP_SUBJECT_ANY, DSP_WAIT_FOREVER);
 }
 
-uint16_t dspTryRecv(dsPostHandle handle) {
-    return dspRecvWait(handle, DSP_SUBJECT_ANY, DSP_NO_WAIT);
+uint16_t dsPostTryRecv(dsPostHandle handle) {
+    return dsPostRecvWait(handle, DSP_SUBJECT_ANY, DSP_NO_WAIT);
 }
 
-uint16_t dspRecvWait(dsPostHandle handle, dsPostSubject subject, uint32_t ticks) {
+uint16_t dsPostRecvWait(dsPostHandle handle, dsPostSubject subject, uint32_t ticks) {
     DISABLE_IRQ();
     dsPostPost* p = dsPostDereference(handle);
     if (p == nullptr) {
@@ -354,7 +354,7 @@ uint16_t dspRecvWait(dsPostHandle handle, dsPostSubject subject, uint32_t ticks)
     return r;
 }
 
-uint16_t dspCount(dsPostHandle handle) {
+uint16_t dsPostCount(dsPostHandle handle) {
     DISABLE_IRQ();
     dsPostPost* p = dsPostDereference(handle);
     if (p == nullptr) {

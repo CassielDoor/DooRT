@@ -25,11 +25,4 @@ public:
     void dsSemWakeAll(void);    //唤醒全部等待者(删除原语时用)
 };
 
-//内部接口 中转调用
-dsSemHandle dssCreate(uint16_t maxCount, uint16_t initCount);
-void dssDelete(dsSemHandle handle);
-bool dssGive(dsSemHandle handle);
-bool dssTake(dsSemHandle handle);
-bool dssTryTake(dsSemHandle handle);
-
 #endif      /* DOORT_SYNC_SEMAPHORE_HPP */

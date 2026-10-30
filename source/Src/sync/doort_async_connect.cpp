@@ -82,7 +82,7 @@ bool daConnectSignal::daTrigger(void* argument) {
 
 //==================== 内部接口: 供 doort.cpp 中转调用 ====================
 
-daSignalHandle dacCreate(uint16_t slotCapacity) {
+daSignalHandle daConnectCreate(uint16_t slotCapacity) {
 
     if (slotCapacity == 0 || gaSignalCount >= UINT16_MAX) return DAS_INVALID_HANDLE;
 
@@ -106,7 +106,7 @@ daSignalHandle dacCreate(uint16_t slotCapacity) {
     return (daSignalHandle)(gaSignalCount++);
 }
 
-daSlotHandle dacSlotCreate(dTaskRef task, void (*slotFunction)(void*), void* context) {
+daSlotHandle daConnectSlot(dTaskRef task, void (*slotFunction)(void*), void* context) {
     if (slotFunction == nullptr || gaSlotCount >= UINT16_MAX) return DAS_INVALID_HANDLE;
     daSlot* slot = dmKernelPlacementNew<daSlot>(4);
     if (slot == nullptr) return DAS_INVALID_HANDLE;
@@ -126,21 +126,21 @@ daSlotHandle dacSlotCreate(dTaskRef task, void (*slotFunction)(void*), void* con
     return (daSlotHandle)(gaSlotCount++);
 }
 
-bool dacConnect(daSignalHandle signal, daSlotHandle slot) {
+bool daConnect(daSignalHandle signal, daSlotHandle slot) {
     daConnectSignal* sig = daFindSignal(signal);
     daSlot* sl = daFindSlot(slot);
     if (sig == nullptr || sl == nullptr) return false;
     return sig->daConnect(sl);
 }
 
-bool dacDisconnect(daSignalHandle signal, daSlotHandle slot) {
+bool daDisconnect(daSignalHandle signal, daSlotHandle slot) {
     daConnectSignal* sig = daFindSignal(signal);
     daSlot* sl = daFindSlot(slot);
     if (sig == nullptr || sl == nullptr) return false;
     return sig->daDisconnect(sl);
 }
 
-bool dacTrigger(daSignalHandle signal, void* argument) {
+bool daConnectTrigger(daSignalHandle signal, void* argument) {
     daConnectSignal* sig = daFindSignal(signal);
     if (sig == nullptr) return false;
     return sig->daTrigger(argument);

@@ -27,11 +27,4 @@ public:
     void dsMutexWakeAll(void);      //恢复原始优先级+唤醒全部等待者(删除原语时用)
 };
 
-//内部接口 中转调用
-dsMutexHandle dsmCreate(void);
-void dsmDelete(dsMutexHandle handle);
-bool dsmLock(dsMutexHandle handle);
-bool dsmTryLock(dsMutexHandle handle);
-bool dsmUnlock(dsMutexHandle handle);
-
 #endif      //DOORT_SYNC_MUTEX_HPP

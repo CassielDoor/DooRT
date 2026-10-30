@@ -133,7 +133,7 @@ void dsMutex::dsMutexWakeAll(void) {    //删除互斥量时唤醒全部等待�
     for (uint16_t i = 0; i < n; i++) dTaskTargetReady(wakeList[i]);
 }
 
-dsMutexHandle dsmCreate(void) {
+dsMutexHandle dsMutexCreate(void) {
     uint16_t id = dmhAlloc(sizeof(dsMutex));    //从堆分配对象
     if (id == DSM_INVALID_HANDLE) return DSM_INVALID_HANDLE;
 
@@ -147,7 +147,7 @@ dsMutexHandle dsmCreate(void) {
     return id;
 }
 
-void dsmDelete(dsMutexHandle handle) {
+void dsMutexDelete(dsMutexHandle handle) {
     DISABLE_IRQ();
     dsMutex* mx = dsMutexDereference(handle);
     if (mx == nullptr) {
@@ -158,7 +158,7 @@ void dsmDelete(dsMutexHandle handle) {
     dmhFree(handle);
 }
 
-bool dsmLock(dsMutexHandle handle) {
+bool dsMutexLock(dsMutexHandle handle) {
     DISABLE_IRQ();      //关中断保证解引用+使用原子
     dsMutex* mx = dsMutexDereference(handle);
     if (mx == nullptr) {
@@ -170,7 +170,7 @@ bool dsmLock(dsMutexHandle handle) {
     return r;
 }
 
-bool dsmTryLock(dsMutexHandle handle) {
+bool dsMutexTryLock(dsMutexHandle handle) {
     DISABLE_IRQ();
     dsMutex* mx = dsMutexDereference(handle);
     if (mx == nullptr) {
@@ -182,7 +182,7 @@ bool dsmTryLock(dsMutexHandle handle) {
     return r;
 }
 
-bool dsmUnlock(dsMutexHandle handle) {
+bool dsMutexUnlock(dsMutexHandle handle) {
     DISABLE_IRQ();
     dsMutex* mx = dsMutexDereference(handle);
     if (mx == nullptr) {

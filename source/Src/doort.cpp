@@ -10,11 +10,6 @@
 #include "doort_task_blocked.hpp"
 #include "doort_memory_handle.hpp"
 
-#include "doort_sync_semaphore.hpp"
-#include "doort_sync_mutex.hpp"
-#include "doort_sync_event.hpp"
-#include "doort_sync_post.hpp"
-
 #include "doort_async_connect.hpp"
 
 #include "doort.h"      //内有config, 必须放于最低下
@@ -213,46 +208,6 @@ void dHeapFree(uint16_t id) {
 //超级提权给软中断, weak函数用户自行实现
 //增量内存紧缩模型, 同步原语, 复用栈                                    已实现增量紧缩和同步原语, 未实现复用栈
 
-//==================== 同步原语: C API 中转站 ====================
-//每个 API 一句话转发到 sync 原语自己的 cpp 内部接口
-
-//信号量
-dsSemHandle dsSemCreate(uint16_t maxCount, uint16_t initCount) { return dssCreate(maxCount, initCount); }
-void dsSemDelete(dsSemHandle handle) { dssDelete(handle); }
-bool dsSemGive(dsSemHandle handle) { return dssGive(handle); }
-bool dsSemTake(dsSemHandle handle) { return dssTake(handle); }
-bool dsSemTryTake(dsSemHandle handle) { return dssTryTake(handle); }
-
-//互斥量(优先级继承)
-dsMutexHandle dsMutexCreate(void) { return dsmCreate(); }
-void dsMutexDelete(dsMutexHandle handle) { dsmDelete(handle); }
-bool dsMutexLock(dsMutexHandle handle) { return dsmLock(handle); }
-bool dsMutexTryLock(dsMutexHandle handle) { return dsmTryLock(handle); }
-bool dsMutexUnlock(dsMutexHandle handle) { return dsmUnlock(handle); }
-
-//事件组
-dsEventHandle dsEventCreate(void) { return dseCreate(); }
-void dsEventDelete(dsEventHandle handle) { dseDelete(handle); }
-bool dsEventSet(dsEventHandle handle, uint32_t flags) { return dseSet(handle, flags); }
-bool dsEventClear(dsEventHandle handle, uint32_t flags) { return dseClear(handle, flags); }
-bool dsEventWait(dsEventHandle handle, uint32_t flags, bool waitAll) { return dseWait(handle, flags, waitAll); }
-bool dsEventTryWait(dsEventHandle handle, uint32_t flags, bool waitAll) { return dseTryWait(handle, flags, waitAll); }
-uint32_t dsEventGetFlags(dsEventHandle handle) { return dseGetFlags(handle); }
-
-//邮箱(post)
-dsPostHandle dsPostCreate(uint16_t capacity, uint8_t overflowPolicy) { return dspCreate(capacity, overflowPolicy); }
-void dsPostDelete(dsPostHandle handle) { dspDelete(handle); }
-bool dsPostSend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent) { return dspSend(handle, mailId, subject, urgent); }
-bool dsPostTrySend(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent) { return dspTrySend(handle, mailId, subject, urgent); }
-bool dsPostSendWait(dsPostHandle handle, uint16_t mailId, uint16_t subject, bool urgent, uint32_t ticks) { return dspSendWait(handle, mailId, subject, urgent, ticks); }
-uint16_t dsPostRecv(dsPostHandle handle) { return dspRecv(handle); }
-uint16_t dsPostTryRecv(dsPostHandle handle) { return dspTryRecv(handle); }
-uint16_t dsPostRecvWait(dsPostHandle handle, dsPostSubject subject, uint32_t ticks) { return dspRecvWait(handle, subject, ticks); }
-uint16_t dsPostCount(dsPostHandle handle) { return dspCount(handle); }
-
-//异步信号槽(connect)
-daSignalHandle daConnectCreate(uint16_t slotCapacity) { return dacCreate(slotCapacity); }
-daSlotHandle   daConnectSlot(dTaskRef task, void (*fn)(void*), void* ctx) { return dacSlotCreate(task, fn, ctx); }
-bool daConnect(daSignalHandle sig, daSlotHandle slot) { return dacConnect(sig, slot); }
-bool daDisconnect(daSignalHandle sig, daSlotHandle slot) { return dacDisconnect(sig, slot); }
-bool daConnectTrigger(daSignalHandle sig, void* arg) { return dacTrigger(sig, arg); }
+//==================== 同步原语 ====================
+//同步原语/信号槽的公共 C 接口直接实现在各自的 cpp 里 (源码 include 了 doort.h 的
+//extern "C" 声明, 定义自动获得 C 链接), 这里不再做转发。
