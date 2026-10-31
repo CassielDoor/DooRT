@@ -11,6 +11,7 @@
 #include "doort_bitmap_tool.hpp"
 
 #include "doort_config.h"
+#include "doort_debug.h"
 
 extern dTaskBlockedManager dtb;
 extern dMemoryManager dmm;
@@ -93,6 +94,16 @@ void dkScheduler::dksStartScheduler(void) {
 
     dLog("\n[info]: Now SysTick: %d(us)\nNow CoreFreq: %d(Hz)\n", gState.dgsSysTick, gState.dgsCoreFreq);
     dp.dpSetSysTick(gState.dgsCoreFreq, gState.dgsSysTick);
+
+    /* ---- 调试快照: 告诉上位机 DooRT 运行在哪里 ----
+       必须声明在本函数(永不返回)自己的局部区, 不能放进一个会返回的辅助函数,
+       否则函数返回后那块栈会被后续中断压栈覆盖。
+       调度器启动后 MSP 停在 dksStartFirstTask 的 svc 处, 所有中断只会往更低的
+       地址压栈, 所以这块内存一直有效, 不需要中断钩子, 也不需要链接脚本配合。
+       上位机先按符号名 DoortDebug_Anchor 找到锚点, 再用 SWD 只读内存读快照。 */
+    DoortDebugSnapshot debugSnapshot;
+    dDebugPublishSnapshot(&debugSnapshot);
+
     dksStartFirstTask();
 }
 

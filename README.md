@@ -489,8 +489,6 @@ DooRT 将内存划分为两个独立区域:
 uint16_t dHeapAlloc(size_t size);                   /* 分配, 返回句柄 ID(UINT16_MAX 表示失败) */
 void*     dHandleDereference(uint16_t id);    /* 句柄 -> 裸地址 */
 void      dHeapFree(uint16_t id);                   /* 按句柄释放 */
-uint8_t  dHeapUsagePercent(void);              /* 堆使用率 */
-uint8_t  dHeapFragPercent(void);                 /* 碎片率(已用区域中空洞占比) */
 ```
 
 ### 类型化句柄宏魔法(X-Macro + `_Generic`)
@@ -522,7 +520,7 @@ MyStruct_Destroy(h);                                                      /* 销
 - 该任务**没有固定优先级**, 会**跟随当前运行优先级滑动**: 平时挂起, 有紧缩需求才唤醒, 避免打扰业务任务.
 - 每步用 `memmove` 把对象向堆底搬移, 并**同步更新句柄表与地址索引**.
 - 搬移过程按步原子, 防止其他任务读到"搬了一半"的对象.
-- 任何同步原语使用时都是**每次现解析句柄**(`dmhHandleDereference`), 因此对象被搬走后依然能拿到正确地址.
+- 任何同步原语使用时都是**每次现解析句柄**(`dmm.dmDereferenceHandle`), 因此对象被搬走后依然能拿到正确地址.
 - - 待优化, 未来将实现私有化对象和搬运锁, 避免持续性关中断
 
 ```mermaid
@@ -701,7 +699,6 @@ void dLog(const char *fmt, ...) {
 |------|------|
 | `dHeapAlloc(size)` / `dHeapFree(id)` | 分配 / 释放(句柄) |
 | `dHandleDereference(id)` | 句柄 → 裸地址 |
-| `dHeapUsagePercent()` / `dHeapFragPercent()` | 使用率 / 碎片率 |
 | `TestCompaction()` | 手动触发一次内存紧缩 |
 
 ### 信号量 `dsSem`

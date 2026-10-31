@@ -125,13 +125,17 @@ public:
     void* dmDereferenceHandle(uint16_t id);
     void dmCompactionStep(void);
     bool dmCompactionActive(void) { return dmCompacting; }
-    uint8_t dmGetUsagePercent(void);    //堆使用率
-    uint8_t dmGetFragPercent(void);     //碎片率(已用区域中空洞占比)
+
+    //调试快照: 返回"堆顶指针变量本身"的地址, 上位机读这个地址得到当前堆顶。
+    //不改变任何分配状态, 也不参与内核逻辑。
+    void** dmGetHeapTopSlot(void) { return reinterpret_cast<void**>(&dmHeapTop); }
 
     void* dmAlloc(void);
     void dmFree(void);
 
     void dmRunCompaction(void);
 };
+
+extern dMemoryManager dmm;      //全局内存管理器, 定义在 doort.cpp
 
 #endif      /* DOORT_MEMORY_MANAGE_HPP */

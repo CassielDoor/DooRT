@@ -9,7 +9,7 @@ extern dkScheduler kScheduler;
 
 static dsSemaphore* dsSemDereference(dsSemHandle handle) {      //句柄转指针, 每次现解析抗压缩
     if (handle == DSS_INVALID_HANDLE) return nullptr;
-    return (dsSemaphore*)dmhHandleDereference(handle);
+    return (dsSemaphore*)dmm.dmDereferenceHandle(handle);
 }
 
 void dsSemaphore::dsSemInit(uint16_t maxCount, uint16_t initCount) {
@@ -74,11 +74,11 @@ void dsSemaphore::dsSemWakeAll(void) {      //删除信号量时唤醒全部等�
 dsSemHandle dsSemCreate(uint16_t maxCount, uint16_t initCount) {
     if (maxCount == 0) return DSS_INVALID_HANDLE;
     if (initCount > maxCount) initCount = maxCount;
-    uint16_t id = dmhAlloc(sizeof(dsSemaphore));    //从堆分配对象
+    uint16_t id = dmm.dmAllocHandle(sizeof(dsSemaphore));    //从堆分配对象
     if (id == DSS_INVALID_HANDLE) return DSS_INVALID_HANDLE;
     dsSemaphore* sm = dsSemDereference(id);
     if (sm == nullptr) {
-        dmhFree(id);    //解析失败则回收内存
+        dmm.dmFreeHandle(id);    //解析失败则回收内存
         return DSS_INVALID_HANDLE;
     }
     sm->dsSemInit(maxCount, initCount);
@@ -93,7 +93,7 @@ void dsSemDelete(dsSemHandle handle) {
         return;
     }
     sm->dsSemWakeAll();     //先唤醒等待者, 避免他们永久阻塞
-    dmhFree(handle);
+    dmm.dmFreeHandle(handle);
 }
 
 bool dsSemGive(dsSemHandle handle) {

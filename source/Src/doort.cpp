@@ -184,24 +184,16 @@ void TestCompaction(void) {
     dmm.dmRunCompaction();
 }
 
-uint8_t dHeapUsagePercent(void) {
-    return dmm.dmGetUsagePercent();
-}
-
-uint8_t dHeapFragPercent(void) {
-    return dmm.dmGetFragPercent();
-}
-
 void* dHandleDereference(uint16_t id) {
-    return dmhHandleDereference(id);
+    return dmm.dmDereferenceHandle(id);
 }
 
 uint16_t dHeapAlloc(size_t size) {
-    return dmhAlloc(size);
+    return dmm.dmAllocHandle(size);
 }
 
 void dHeapFree(uint16_t id) {
-    dmhFree(id);
+    dmm.dmFreeHandle(id);
 }
 
 //需实现, 同步原语, 在同步原语之前可能需要先实现增量内存紧缩模型和静态池    已实现

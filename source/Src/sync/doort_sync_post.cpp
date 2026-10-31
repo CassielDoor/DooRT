@@ -11,11 +11,11 @@ extern dTaskBlockedManager dtb;
 
 static dsPostPost* dsPostDereference(dsPostHandle handle) {     //句柄转指针, 每次现解析抗压缩
     if (handle == DSP_INVALID_HANDLE) return nullptr;
-    return (dsPostPost*)dmhHandleDereference(handle);
+    return (dsPostPost*)dmm.dmDereferenceHandle(handle);
 }
 
 static dsPostSlot* dsPostGetSlots(dsPostPost* p) {      //槽位数组每次现解析(槽位本身也是堆对象, 会被搬移)
-    return (dsPostSlot*)dmhHandleDereference(p->dsPostSlotsHandle);
+    return (dsPostSlot*)dmm.dmDereferenceHandle(p->dsPostSlotsHandle);
 }
 
 //满箱丢弃: 返回被丢弃的邮件句柄(由调用方在开中断后释放)
@@ -156,7 +156,7 @@ bool dsPostPost::dsPostSendWait(dsPostHandle handle, uint16_t mailId, uint16_t s
             if (!dsPostEnqueue(p, mailId, subject, urgent, &dropped)) return false;
             dTaskRef w = dsPostWakeRecvWaiter(p, subject);          //入队后唤醒一个匹配收件者
             ENABLE_IRQ();                                           //开中断后再做唤醒/释放
-            if (dropped != DSP_INVALID_HANDLE) dmhFree(dropped);    //释放被丢弃的邮件
+            if (dropped != DSP_INVALID_HANDLE) dmm.dmFreeHandle(dropped);    //释放被丢弃的邮件
             if (w != nullptr) dTaskTargetReady(w);
             return true;
         }
@@ -257,18 +257,18 @@ dsPostHandle dsPostCreate(uint16_t capacity, uint8_t overflowPolicy) {
     if (capacity == 0) return DSP_INVALID_HANDLE;
     if (overflowPolicy > DSP_OVERFLOW_DROP_NEWEST) overflowPolicy = DSP_OVERFLOW_BLOCK;
 
-    uint16_t id = dmhAlloc(sizeof(dsPostPost));     //分配邮箱对象
+    uint16_t id = dmm.dmAllocHandle(sizeof(dsPostPost));     //分配邮箱对象
     if (id == DSP_INVALID_HANDLE) return DSP_INVALID_HANDLE;
 
     dsPostPost* p = dsPostDereference(id);
     if (p == nullptr) {
-        dmhFree(id);
+        dmm.dmFreeHandle(id);
         return DSP_INVALID_HANDLE;
     }
 
-    uint16_t slotsHandle = dmhAlloc(capacity * sizeof(dsPostSlot));     //分配槽位数组(独立堆对象, 抗压缩)
+    uint16_t slotsHandle = dmm.dmAllocHandle(capacity * sizeof(dsPostSlot));     //分配槽位数组(独立堆对象, 抗压缩)
     if (slotsHandle == DSP_INVALID_HANDLE) {
-        dmhFree(id);
+        dmm.dmFreeHandle(id);
         return DSP_INVALID_HANDLE;
     }
 
@@ -304,11 +304,11 @@ void dsPostDelete(dsPostHandle handle) {
     //释放未投递邮件与槽位数组(每次重新解引用, 抗压缩)
     for (uint16_t i = 0; i < count; i++) {
         uint16_t index = (uint16_t)((head + i) % capacity);
-        dsPostSlot* slots = (dsPostSlot*)dmhHandleDereference(slotsHandle);
-        dmhFree(slots[index].dsPostMailId);
+        dsPostSlot* slots = (dsPostSlot*)dmm.dmDereferenceHandle(slotsHandle);
+        dmm.dmFreeHandle(slots[index].dsPostMailId);
     }
-    dmhFree(slotsHandle);
-    dmhFree(handle);
+    dmm.dmFreeHandle(slotsHandle);
+    dmm.dmFreeHandle(handle);
 
     for (uint16_t i = 0; i < n; i++) dTaskTargetReady(rw[i]);       //唤醒等待者
     for (uint16_t i = 0; i < m; i++) dTaskTargetReady(sw[i]);

@@ -9,7 +9,7 @@ extern dkScheduler kScheduler;
 
 static dsMutex* dsMutexDereference(dsMutexHandle handle) {      //句柄转指针, 每次现解析抗压缩
     if (handle == DSM_INVALID_HANDLE) return nullptr;
-    return (dsMutex*)dmhHandleDereference(handle);
+    return (dsMutex*)dmm.dmDereferenceHandle(handle);
 }
 
 void dsMutex::dsMutexInit(void) {
@@ -134,12 +134,12 @@ void dsMutex::dsMutexWakeAll(void) {    //删除互斥量时唤醒全部等待�
 }
 
 dsMutexHandle dsMutexCreate(void) {
-    uint16_t id = dmhAlloc(sizeof(dsMutex));    //从堆分配对象
+    uint16_t id = dmm.dmAllocHandle(sizeof(dsMutex));    //从堆分配对象
     if (id == DSM_INVALID_HANDLE) return DSM_INVALID_HANDLE;
 
     dsMutex* mx = dsMutexDereference(id);
     if (mx == nullptr) {
-        dmhFree(id);
+        dmm.dmFreeHandle(id);
         return DSM_INVALID_HANDLE;
     }
 
@@ -155,7 +155,7 @@ void dsMutexDelete(dsMutexHandle handle) {
         return;
     }
     mx->dsMutexWakeAll();       //先唤醒等待者
-    dmhFree(handle);
+    dmm.dmFreeHandle(handle);
 }
 
 bool dsMutexLock(dsMutexHandle handle) {

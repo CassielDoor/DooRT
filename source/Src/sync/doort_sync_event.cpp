@@ -9,7 +9,7 @@ extern dkScheduler kScheduler;
 
 static dsEvent* dsEventDereference(dsEventHandle handle) {      //句柄转指针, 每次现解析抗压缩
     if (handle == DSE_INVALID_HANDLE) return nullptr;
-    return (dsEvent*)dmhHandleDereference(handle);
+    return (dsEvent*)dmm.dmDereferenceHandle(handle);
 }
 
 static inline bool dsEventCondMet(uint32_t flags, uint32_t need, bool waitAll) {    //判断等待条件是否满足
@@ -96,12 +96,12 @@ void dsEvent::dsEventWakeAll(void) {    //删除事件组时唤醒全部等待�
 }
 
 dsEventHandle dsEventCreate(void) {
-    uint16_t id = dmhAlloc(sizeof(dsEvent));    //从堆分配对象
+    uint16_t id = dmm.dmAllocHandle(sizeof(dsEvent));    //从堆分配对象
     if (id == DSE_INVALID_HANDLE) return DSE_INVALID_HANDLE;
 
     dsEvent* eg = dsEventDereference(id);
     if (eg == nullptr) {
-        dmhFree(id);
+        dmm.dmFreeHandle(id);
         return DSE_INVALID_HANDLE;
     }
 
@@ -117,7 +117,7 @@ void dsEventDelete(dsEventHandle handle) {
         return;
     }
     eg->dsEventWakeAll();       //先唤醒等待者
-    dmhFree(handle);
+    dmm.dmFreeHandle(handle);
 }
 
 bool dsEventSet(dsEventHandle handle, uint32_t flags) {

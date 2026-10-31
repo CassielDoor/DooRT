@@ -228,30 +228,6 @@ void* dMemoryManager::dmDereferenceHandle(uint16_t id) {
     return dmObjectHandleHead[id].dohObjectAddr;            // 返回地址
 }
 
-uint8_t dMemoryManager::dmGetUsagePercent(void) {
-    DISABLE_IRQ();
-    uint32_t total = (uint32_t)(dmHeapEnd - dmHeapBase);
-    uint32_t used = (uint32_t)(dmHeapTop - dmHeapBase);
-    ENABLE_IRQ();
-    if (total == 0) return 0;
-    return (uint8_t)((uint64_t)used * 100 / total);
-}
-
-uint8_t dMemoryManager::dmGetFragPercent(void) {
-    DISABLE_IRQ();
-    uint32_t used = (uint32_t)(dmHeapTop - dmHeapBase);
-    uint32_t live = 0;
-    for (uint32_t i = 0; i < dmAddressIndexCount; i++) {
-        if (dmAddressIndex[i].handleId == UINT16_MAX) continue;
-        uint32_t size = dmObjectHandleHead[dmAddressIndex[i].handleId].dohObjectSize;
-        live += (size + 7) & ~0x7;
-    }
-    ENABLE_IRQ();
-    if (used == 0) return 0;
-    uint32_t frag = used > live ? used - live : 0;
-    return (uint8_t)((uint64_t)frag * 100 / used);
-}
-
 void dMemoryManager::dmRunCompaction(void) {
     if (!dmFragment) return;    //无碎片不需要压缩
     DISABLE_IRQ();              //整趟原子: 搬移+句柄更新+索引压缩不被打断
@@ -270,17 +246,4 @@ void dMemoryManager::dmCompactionStep(void) {
         mtCompactionStep();     // 只执行一步
         ENABLE_IRQ();
     }
-}
-
-//待修改, 这三个函数可以脱壳, 在上层直接调用dmm
-void* dmhHandleDereference(uint16_t id) {
-    return dmm.dmDereferenceHandle(id);
-}
-
-uint16_t dmhAlloc(size_t size) {
-    return dmm.dmAllocHandle(size);
-}
-
-void dmhFree(uint16_t id) {
-    dmm.dmFreeHandle(id);
 }

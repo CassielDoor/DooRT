@@ -46,6 +46,7 @@ add_library(doort OBJECT
 
     # 内核
     source/Src/kernel/doort_global_state.cpp
+    source/Src/kernel/doort_debug.cpp
     source/Src/kernel/doort_kernel_scheduler.cpp
     source/Src/kernel/doort_task.cpp
     source/Src/kernel/doort_task_blocked.cpp

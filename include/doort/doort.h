@@ -18,6 +18,12 @@
 #include "doort_config_user_type.h"
 #include "doort_config.h"
 
+/* DooRT 版本: 主.次.修订 = 0.0.2 */
+#define DOORT_VERSION_MAJOR  0
+#define DOORT_VERSION_MINOR  0
+#define DOORT_VERSION_PATCH  2
+#define DOORT_VERSION_STRING "0.0.2"
+
 typedef void* dTaskRef;
 typedef void (*dtFunction)(void* dtParameters);
 
@@ -61,9 +67,6 @@ void TestCompaction(void);
 void* dHandleDereference(uint16_t id);
 uint16_t dHeapAlloc(size_t size);
 void dHeapFree(uint16_t id);
-
-uint8_t dHeapUsagePercent(void);
-uint8_t dHeapFragPercent(void);
 
 //---------------- 信号量 ----------------
 typedef uint16_t dsSemHandle;
