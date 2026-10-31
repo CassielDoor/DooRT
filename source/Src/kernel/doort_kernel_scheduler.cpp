@@ -86,11 +86,13 @@ void dkScheduler::dksStartScheduler(void) {
     dksInitPriorityBitMap();
     dkBitMapSync();     //位图与就绪队列统计同步, 必须在 dksInitPriorityBitMap() 之后执行
 
+    dUserInit();
+
+    /* 内核到这里已经完整分配(任务/TCB/栈/各张表), 堆才接着它的顶指针放。
+     * 注意: dUserInit 里不要调用 dHeapAlloc, 那时堆还没放。 */
     #if DOORT_HEAP_IS_ENABLE
     dmm.dmInitHeap();
     #endif
-
-    dUserInit();
 
     dLog("\n[info]: Now SysTick: %d(us)\nNow CoreFreq: %d(Hz)\n", gState.dgsSysTick, gState.dgsCoreFreq);
     dp.dpSetSysTick(gState.dgsCoreFreq, gState.dgsSysTick);

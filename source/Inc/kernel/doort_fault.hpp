@@ -17,4 +17,5 @@ void dfInitializationFault_FailedToCreateTask(uint32_t RemainingMemory, uint32_t
 void dfTaskFault_UnexpectedReturn(void);
 
 void dfMemoryFault_AccessViolation(void);
+void dfMemoryFault_HeapOverlapKernel(void);
 #endif      /* DOORT_FAULT_HPP */

@@ -15,7 +15,7 @@ extern "C" {
 
 void dntMemoryMoveTask(void* null) {
     (void)null;
-    dLog("[mem] start\n");
+    // 这里不要放 dLog: 搬移任务每步都在跑, 打印会拖慢紧缩并吃掉大量栈
     while(1) {
         if (dmm.dmCompactionActive()) {
             dmm.dmCompactionStep();     //执行一步压缩
@@ -30,7 +30,7 @@ void dntMemoryMoveTask(void* null) {
 __attribute__((weak)) dTaskParams dntMemoryMoveTaskHandle{
     .dtFunc = dntMemoryMoveTask,
     .dtPriority = INT8_MAX,     //最低优先级起步, 由调度器按需搬移到当前运行优先级
-    .dtStackSize = 2048,        //任务内调dLog(vsnprintf+HAL_UART), 栈必须给足
+    .dtStackSize = 256,         //只调 dmCompactionStep(纯搬字节), 不再有 dLog 的 vsnprintf 帧
     .dtHandle = nullptr,
     .dtParameters = nullptr
 };

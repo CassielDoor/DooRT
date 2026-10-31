@@ -5,11 +5,10 @@
 #define DOORT_STACK_REUSE_ENABLED 0         //栈复用启用
 
 #define DOORT_KERNEL_ADDRESS 0xD0000000         //调度器内核起始地址
-#define DOORT_KERNEL_BLOCK_SIZE 128             //内核块内存大小 unit KB
 #define DOORT_HEAP_IS_ENABLE 1                  //是否启用堆, 元数据需要部分空间, 不建议内存过小的芯片启用堆, 当前堆启用编译裁剪不完整, 需补完
-#define DOORT_HERP_ADDRESS_FOLLOW_KERNEL 0      //静态堆跟随内核分配
+#define DOORT_HERP_ADDRESS_FOLLOW_KERNEL 1      //静态堆跟随内核分配
 #define DOORT_HEAP_BLOCK_SIZE 32                //静态堆内存大小 unit KB
-#define DOORT_HEAP_OBJECT_NUM 2300              //堆对象数量
+#define DOORT_HEAP_OBJECT_NUM 256               //堆对象数量
 
 #if !DOORT_HERP_ADDRESS_FOLLOW_KERNEL       //如果不跟随分配
 #define DOORT_HERP_ADDRESS 0xD1000000       //提供堆地址

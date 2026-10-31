@@ -85,3 +85,13 @@ void dfMemoryFault_AccessViolation(void) {
         please check DOORT_KERNEL_ADDRESS or DOORT_HERP_ADDRESS in config.h mayde is not correct.*/
     }
 }
+
+void dfMemoryFault_HeapOverlapKernel(void) {
+    /*How about giving some feedback, use (func)dLog or something?*/
+
+    while(1){
+        /*当堆使用固定地址(DOORT_HERP_ADDRESS_FOLLOW_KERNEL = 0)时,
+        堆基址落在了内核已经用掉的那段内存里。
+        要么把 DOORT_HERP_ADDRESS 往后挪, 要么改成跟随内核分配.*/
+    }
+}

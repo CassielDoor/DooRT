@@ -16,23 +16,24 @@ dgState::dgState() {
     uint64_t addr = DOORT_KERNEL_ADDRESS;
     addr = addr & ~0x3ULL;              //四字节对齐向前取整
     dgsKernelAddr = (void*)addr;
-    addr = addr + DOORT_KERNEL_BLOCK_SIZE * 1024ULL;
-    dgsKernelEnd = (void*)addr;
 
+    /* 内核不再预留固定块大小: 它从起始地址一路往上分配, 顶指针就是 dgsKernelAddr.
+     * 堆的位置在 dmInitHeap() 里按当时的顶指针定. */
     #if !DOORT_HERP_ADDRESS_FOLLOW_KERNEL
+    /* 固定堆地址: 内核最多长到堆基址, 长过去由 dmAddressSafety 抛越界 */
     addr = DOORT_HERP_ADDRESS;
     addr = (addr + 7) & ~0x7ULL;        //八字节对齐向后取整避免和核心尾发生踩踏
     dgsHerpAddr = (void*)addr;
-    addr = addr + DOORT_HEAP_BLOCK_SIZE * 1024ULL;
-    dgsHerpEnd = (void*)addr;
+    dgsHerpEnd = (void*)(addr + DOORT_HEAP_BLOCK_SIZE * 1024ULL);
+    dgsKernelEnd = dgsHerpAddr;
     #endif
 
     #if DOORT_HERP_ADDRESS_FOLLOW_KERNEL
-    addr = (uintptr_t)dgsKernelEnd;     //直接以核心尾作为堆地址并八字节向后取整
-    addr = (addr + 7) & ~0x7ULL;
-    dgsHerpAddr = (void*)addr;
-    addr = addr + DOORT_HEAP_BLOCK_SIZE * 1024ULL;
-    dgsHerpEnd = (void*)addr;
+    /* 跟随内核: 这里先给个 SDRAM 末尾当临时上限, 真正的上限在 dmInitHeap()
+     * 里收紧成堆基址(内核完整分配之后才确定). */
+    dgsHerpAddr = nullptr;
+    dgsHerpEnd = nullptr;
+    dgsKernelEnd = (void*)0xE0000000ULL;
     #endif
 
 }

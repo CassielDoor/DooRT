@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "doort_port.hpp"
+#include "doort_config.h"
 #include "doort_memory_manage.hpp"
 #include "doort_memory_handle.hpp"
 #include "doort_global_state.hpp"
@@ -35,6 +36,28 @@ void dMemoryManager::dmInitHeap(void) {
     dmInitHandleBitMap();
     dmInitAddressIndex();
 
+    /* 内核对象到这里就全部建完了, 堆直接接在内核当前的顶指针后面 */
+    const uintptr_t kernelTop = (uintptr_t)gState.dgsKernelAddr;
+
+    #if DOORT_HERP_ADDRESS_FOLLOW_KERNEL
+    const uintptr_t heapBase = dmAddrAlignment_8(kernelTop);
+    #else
+    const uintptr_t heapBase = dmAddrAlignment_8((uintptr_t)DOORT_HERP_ADDRESS);
+    #endif
+    const uintptr_t heapEnd = heapBase + (uintptr_t)DOORT_HEAP_BLOCK_SIZE * 1024ULL;
+
+    /* 只有固定地址模式才可能压到内核: 堆基址落在内核已经用掉的范围里就不分配 */
+    if (heapBase < kernelTop) {
+        dLog("[error]: Heap base 0x%08lX overlaps kernel top 0x%08lX\n",
+             (unsigned long)heapBase, (unsigned long)kernelTop);
+        dfMemoryFault_HeapOverlapKernel();
+        return;
+    }
+
+    gState.dgsHerpAddr = (void*)heapBase;
+    gState.dgsHerpEnd = (void*)heapEnd;
+    gState.dgsKernelEnd = (void*)heapBase;   // 内核不许再往上长, 再长就是越界
+
     dmHeapBase = (uint8_t*)gState.dgsHerpAddr;      //堆基址
     dmHeapEnd  = (uint8_t*)gState.dgsHerpEnd;       //堆尾
     dmHeapTop  = dmHeapBase;                        //初始堆顶等于基址
@@ -44,9 +67,15 @@ void dMemoryManager::dmInitHeap(void) {
     dmCompactWrite = nullptr;
     dmCompactIndex = 0;
 
+    /* 内核完整分配完的实际大小: 起始地址到当前顶指针 */
+    const uintptr_t kernelStart = (uintptr_t)DOORT_KERNEL_ADDRESS & ~(uintptr_t)0x3;
+    const uint32_t kernelSize = (uint32_t)(kernelTop - kernelStart);
+
     uint32_t heapSize = (uint32_t)(dmHeapEnd - dmHeapBase);     //堆总字节数
     uint32_t heapMB = heapSize / (1024 * 1024);
     uint32_t heapKB = (heapSize % (1024 * 1024)) / 1024;
+    dLog("[info]: Kernel size = %lu B (0x%08lX - 0x%08lX)\n",
+         (unsigned long)kernelSize, (unsigned long)kernelStart, (unsigned long)kernelTop);
     dLog("[info]: Heap initialized. Base=%p, End=%p, Size=%luMB %luKB\n", dmHeapBase, dmHeapEnd, (unsigned long)heapMB, (unsigned long)heapKB);
 
 }

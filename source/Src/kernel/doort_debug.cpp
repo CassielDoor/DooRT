@@ -39,7 +39,7 @@ extern "C" void dDebugPublishSnapshot(DoortDebugSnapshot *snapshot)
 
     /* 区域: 全部来自 doort_config, 与芯片/BSP 无关 */
     snapshot->ddKernelBlockEnd  = (uint32_t)(uintptr_t)gState.dgsKernelEnd;
-    snapshot->ddKernelBlockBase = snapshot->ddKernelBlockEnd - (uint32_t)DOORT_KERNEL_BLOCK_SIZE * 1024u;
+    snapshot->ddKernelBlockBase = (uint32_t)((uintptr_t)DOORT_KERNEL_ADDRESS & ~(uintptr_t)0x3);
 
     snapshot->ddHeapBlockBase = (uint32_t)(uintptr_t)gState.dgsHerpAddr;
     snapshot->ddHeapBlockEnd  = (uint32_t)(uintptr_t)gState.dgsHerpEnd;
