@@ -130,6 +130,16 @@ public:
     //不改变任何分配状态, 也不参与内核逻辑。
     void** dmGetHeapTopSlot(void) { return reinterpret_cast<void**>(&dmHeapTop); }
 
+    //调试快照: 堆元数据表的位置。上位机顺着"地址索引 + 句柄表"复原占用/空洞。
+    //同样只返回地址, 不读值、不加锁、不改任何状态。
+    void**    dmGetAddressIndexSlot(void)      { return reinterpret_cast<void**>(&dmAddressIndex); }
+    uint32_t* dmGetAddressIndexCountSlot(void) { return &dmAddressIndexCount; }
+    void**    dmGetObjectHandleSlot(void)      { return reinterpret_cast<void**>(&dmObjectHandleHead); }
+    void**    dmGetCompactWriteSlot(void)      { return reinterpret_cast<void**>(&dmCompactWrite); }
+    bool*     dmGetCompactingSlot(void)        { return &dmCompacting; }
+    bool*     dmGetFragmentSlot(void)          { return &dmFragment; }
+    static uint32_t dmGetEntrySize(void)       { return (uint32_t)sizeof(dAddressIndex); }
+
     void* dmAlloc(void);
     void dmFree(void);
 

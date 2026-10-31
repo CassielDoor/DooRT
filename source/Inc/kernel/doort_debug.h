@@ -69,6 +69,18 @@ typedef struct {
     uint32_t ddHeapTopSlotAddr;     // 堆顶指针变量的地址
     uint32_t ddTickSlotAddr;        // 内核节拍变量的地址
     uint32_t ddCurrentTaskSlotAddr; // 当前任务指针变量的地址
+
+    /* ---- v0.0.3: 堆元数据表位置(只给地址, 值由上位机自己读) ----
+     * 堆是没有块头的 bump 分配器, 单看内存内容分不出对象边界, 所以上位机
+     * 必须顺着地址索引 + 句柄表才能画出"哪段被占、哪段是空洞"。 */
+    uint32_t ddAddressIndexAddr;      // dAddressIndex* 这个变量的地址(槽)
+    uint32_t ddAddressIndexCountAddr; // uint32_t*, 当前索引条目数(含空洞槽)
+    uint32_t ddObjectHandleAddr;      // dObjectHandle* 这个变量的地址(槽)
+    uint32_t ddObjectNum;             // 句柄容量 = DOORT_HEAP_OBJECT_NUM
+    uint32_t ddEntrySize;             // 两个表的单条大小(都是 8 字节)
+    uint32_t ddCompactWriteSlotAddr;  // uint8_t**, 紧缩写指针(紧缩进度)
+    uint32_t ddCompactingSlotAddr;    // bool*, 是否正在紧缩
+    uint32_t ddFragmentSlotAddr;      // bool*, 是否有碎片
 } DoortDebugSnapshot;
 
 // 锚点对象(位置由链接器决定, 上位机不按符号名查)

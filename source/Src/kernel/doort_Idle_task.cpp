@@ -24,7 +24,7 @@ __attribute__((weak)) dTaskParams dntIdleTaskHandle{
 };
 
 void dntIdleTaskStart(void) {
-    dTaskCreate(&dntIdleTaskHandle);
+    dTaskDebugCreat(&dntIdleTaskHandle, "idle");     //带调试名字, 名字在栈底下方, 不占栈空间
     gState.dgsKernelIdleTask = (dTaskControlBlock*) dntIdleTaskHandle.dtHandle;     //拿到空任务句柄
 }
 

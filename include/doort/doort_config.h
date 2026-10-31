@@ -17,6 +17,17 @@
 
 #define DOORT_SUGGESTION_MIN_STACK 256                          //建议最小栈大小 unit byte
 #define PHYSICAL_MIN_STACK  64                                  //最小物理栈大小, 低于将无法保存完整上下文
+
+/* 栈水位魔数: 建任务时把整块栈涂成这个值, 任务用掉多少就覆盖多少。
+ * 上位机沿栈底往上扫到第一个非魔数字就是"用了多少", 扫描全在 PC 上, 内核零开销。
+ * 0xCDAC4D89 由 "STACKTOP" 逐位映射得到(表见 doort_debug.h):
+ *   S=C T=D A=A C=C K=4 T=D O=8 P=9  ->  CDAC4D89 */
+#define DOORT_STACK_FILL_MAGIC 0xCDAC4D89u
+
+/* 任务名字头: 只有用 dTaskDebugCreat 建任务时才在前缀里写这个魔数, 上位机从栈底
+ * 往下 8 字节读到它就接着读名字。不取名 = 完全没有这段内存。
+ * 0xDAC47A6E 由 "TASKNAME" 逐位映射得到: T=D A=A S=C K=4 N=7 A=A M=6 E=E */
+#define DOORT_TASK_NAME_MAGIC 0xDAC47A6Eu
 #define SPECIAL_PRIORITY_OFFSET 3                               //-1软件中断 -2硬件中断 -3超级提权
 #define PRIORITIES_TOTAL_NUMBER 128+SPECIAL_PRIORITY_OFFSET     //总优先级数量
 

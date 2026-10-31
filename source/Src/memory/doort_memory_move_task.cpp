@@ -36,7 +36,7 @@ __attribute__((weak)) dTaskParams dntMemoryMoveTaskHandle{
 };
 
 void dntMemoryMoveTaskStart(void) {
-    dTaskCreateSuspend(&dntMemoryMoveTaskHandle);                                           //挂起注册, 有紧缩需求时由SysTick唤醒
+    dTaskDebugCreatSuspend(&dntMemoryMoveTaskHandle, "memMove");                            //挂起注册, 有紧缩需求时由SysTick唤醒
     gState.dgsKernelMemoryTask = (dTaskControlBlock*) dntMemoryMoveTaskHandle.dtHandle;     //保存紧缩任务句柄
 }
 

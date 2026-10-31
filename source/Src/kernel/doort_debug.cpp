@@ -18,9 +18,9 @@ extern volatile dgState gState;
 extern volatile dTaskControlBlock *tCurrentTaskPointer;
 extern dMemoryManager dmm;
 
-/* 上位机按 16/36 字节、相同偏移解析, 布局改了这里先炸, 不要等运行期读到乱数据 */
+/* 上位机按 16/68 字节、相同偏移解析, 布局改了这里先炸, 不要等运行期读到乱数据 */
 static_assert(sizeof(DoortDebugAnchor) == 16, "DoortDebugAnchor layout changed");
-static_assert(sizeof(DoortDebugSnapshot) == 36, "DoortDebugSnapshot layout changed");
+static_assert(sizeof(DoortDebugSnapshot) == 68, "DoortDebugSnapshot layout changed");
 
 /* 上位机靠这块内存里的 magic 发现锚点, 不能被 --gc-sections 收掉 */
 extern "C" {
@@ -48,6 +48,16 @@ extern "C" void dDebugPublishSnapshot(DoortDebugSnapshot *snapshot)
     snapshot->ddHeapTopSlotAddr     = (uint32_t)(uintptr_t)dmm.dmGetHeapTopSlot();
     snapshot->ddTickSlotAddr        = (uint32_t)(uintptr_t)&gState.dgsTickCount;
     snapshot->ddCurrentTaskSlotAddr = (uint32_t)(uintptr_t)&tCurrentTaskPointer;
+
+    /* 堆元数据表: 同样是"只给地址", 上位机据此复原占用/空洞/紧缩进度 */
+    snapshot->ddAddressIndexAddr      = (uint32_t)(uintptr_t)dmm.dmGetAddressIndexSlot();
+    snapshot->ddAddressIndexCountAddr = (uint32_t)(uintptr_t)dmm.dmGetAddressIndexCountSlot();
+    snapshot->ddObjectHandleAddr      = (uint32_t)(uintptr_t)dmm.dmGetObjectHandleSlot();
+    snapshot->ddObjectNum             = (uint32_t)DOORT_HEAP_OBJECT_NUM;
+    snapshot->ddEntrySize             = (uint32_t)dmm.dmGetEntrySize();
+    snapshot->ddCompactWriteSlotAddr  = (uint32_t)(uintptr_t)dmm.dmGetCompactWriteSlot();
+    snapshot->ddCompactingSlotAddr    = (uint32_t)(uintptr_t)dmm.dmGetCompactingSlot();
+    snapshot->ddFragmentSlotAddr      = (uint32_t)(uintptr_t)dmm.dmGetFragmentSlot();
 
     /* 最后才写锚点: 上位机看到有效锚点就说明目录已经完整 */
     DoortDebug_Anchor.ddLayoutVersion = DOORT_DEBUG_VERSION;

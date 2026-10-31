@@ -47,7 +47,11 @@ static void daTaskEntryWrapper(void* arg) {
     t->dtUserFunction(arg);
 }
 
-dTaskControlBlock* dNewTask(dTaskParams *taskParams) {
+// 建任务。taskName 非空时, 在栈底下方(低地址侧)多分配一块前缀:
+//   [名字字符(4 字节对齐, 含结尾 0)] [8 字节头: magic + 对齐长度] [栈 ...]
+// 栈的总大小和栈底指针跟不取名时一样, 栈往下长永远碰不到名字;
+// 反过来栈一旦溢出, 第一站就是这块前缀 —— 上位机看到名字头被踩就知道爆了。
+dTaskControlBlock* dNewTask(dTaskParams *taskParams, const char *taskName) {
     if (taskParams == nullptr) return nullptr;
     if (taskParams->dtStackSize < DOORT_SUGGESTION_MIN_STACK)
         dLog("[warning]: Task stack small, stack size is: %d.\n", taskParams->dtStackSize);
@@ -59,10 +63,35 @@ dTaskControlBlock* dNewTask(dTaskParams *taskParams) {
 
     // 分配任务栈, 直接分配内存
     uint32_t stackSize = dmCalcAlignedTotalSize(taskParams->dtStackSize, 8, 1);
-    void* stackMem = dmKernelPlacementNew(8, stackSize);
+
+    // 可选的名字前缀, 全部用现成的对齐函数算, 不取名时两个值都是 0
+    uint32_t nameLen = 0;       // 对齐后、含结尾 0 的名字字节数
+    uint32_t prefix = 0;        // 栈底下方的名字前缀总字节数
+    if (taskName != nullptr && taskName[0] != '\0') {
+        nameLen = dmByteAlignment_4((uint32_t)strlen(taskName) + 1u, 1);   // 4 字节对齐, 上位机按字读
+        prefix  = dmByteAlignment_8(8u + nameLen, 1);                      // 8 字节头 + 名字
+    }
+
+    // 栈和名字前缀一次分配, 走内核 bump 分配器(它自己会推进内核指针)
+    uint8_t *block = (uint8_t*)dmKernelPlacementNew(8, prefix + stackSize);
+
+    // 整块(含前缀)先涂魔数, 再把名字盖到前缀上。前缀不是魔数, 所以
+    // "从栈底往上数连续魔数"仍然从真正的栈底开始, 水位读数不受影响。
+    for (uint32_t i = 0; i < (prefix + stackSize) / 4u; ++i)
+        ((uint32_t*)block)[i] = DOORT_STACK_FILL_MAGIC;
+
+    uint8_t *stackBase = block + prefix;
+    if (prefix != 0) {
+        uint8_t *nameArea = stackBase - 8 - nameLen;
+        memset(nameArea, 0, nameLen);                       // 补齐位清零, 免得被当成魔数区
+        memcpy(nameArea, taskName, strlen(taskName) + 1);
+        uint32_t *header = (uint32_t*)(stackBase - 8);       // 头紧贴栈底
+        header[0] = DOORT_TASK_NAME_MAGIC;
+        header[1] = nameLen;
+    }
 
     newTask->dTCBSetStackSize(stackSize);
-    newTask->dTCBSetStackPtr(stackMem);
+    newTask->dTCBSetStackPtr(stackBase);
 
     uint32_t *stackTop = (uint32_t *)((uint8_t *)(newTask->dTCBGetStackBase()) + newTask->dTCBGetStackSize());
     // 任务入口包一层: 启动时先排空延迟信号回调, 再跑用户函数

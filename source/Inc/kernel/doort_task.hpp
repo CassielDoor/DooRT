@@ -62,7 +62,9 @@ public:
     uint32_t dTCBGetStackSize(void);
 };
 
-dTaskControlBlock *dNewTask(dTaskParams *taskParams);
+/// 建任务。taskName 可选: 非空时在栈底下方(低地址侧)留一块名字前缀, 不占栈空间;
+/// 传 nullptr/空串时行为与不传完全一致(零额外内存)。
+dTaskControlBlock *dNewTask(dTaskParams *taskParams, const char *taskName = nullptr);
 void dTaskRegist(dTaskControlBlock *taskHead);
 void dkBitMapSync(void);
 

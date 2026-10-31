@@ -35,9 +35,8 @@ void dInitSysTick(uint32_t dgsSysTickUs) {
     gState.dgsSysTick = dgsSysTickUs;
 }
 
-dTaskRef dTaskCreate(dTaskParams *taskParams) {
-    dTaskControlBlock *newTask = dNewTask(taskParams);      //造一个标准新任务
-
+// 把新任务挂到全局 TCB 链表尾巴并回填句柄。dTaskCreate / dTaskDebugCreat 共用。
+static dTaskRef dTaskLink(dTaskControlBlock *newTask, dTaskParams *taskParams) {
     taskParams->dtHandle = (void*)newTask;
 
     if(dTCBHead == nullptr) {
@@ -51,6 +50,20 @@ dTaskRef dTaskCreate(dTaskParams *taskParams) {
     }
 
     return (void*)newTask;
+}
+
+dTaskRef dTaskCreate(dTaskParams *taskParams) {
+    return dTaskLink(dNewTask(taskParams), taskParams);      //造一个标准新任务
+}
+
+dTaskRef dTaskDebugCreat(dTaskParams *taskParams, const char *taskName) {
+    return dTaskLink(dNewTask(taskParams, taskName), taskParams);   //带调试名字
+}
+
+dTaskRef dTaskDebugCreatSuspend(struct dTaskParams *taskParams, const char *taskName) {
+    dTaskControlBlock *newTask = (dTaskControlBlock*)dTaskDebugCreat(taskParams, taskName);
+    newTask->dtStatusCode = DOORT_TASK_STATUS_SUSPENDED;
+    return newTask;
 }
 
 dTaskRef dTaskCreateSuspend(struct dTaskParams *taskParams) {

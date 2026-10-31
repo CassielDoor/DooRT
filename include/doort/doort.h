@@ -18,11 +18,11 @@
 #include "doort_config_user_type.h"
 #include "doort_config.h"
 
-/* DooRT 版本: 主.次.修订 = 0.0.2 */
+/* DooRT 版本: 主.次.修订 = 0.0.3 */
 #define DOORT_VERSION_MAJOR  0
 #define DOORT_VERSION_MINOR  0
-#define DOORT_VERSION_PATCH  2
-#define DOORT_VERSION_STRING "0.0.2"
+#define DOORT_VERSION_PATCH  3
+#define DOORT_VERSION_STRING "0.0.3"
 
 typedef void* dTaskRef;
 typedef void (*dtFunction)(void* dtParameters);
@@ -43,6 +43,11 @@ void dInitSystemClock(uint32_t dgsCoreFreq);
 void dInitSysTick(uint32_t dgsSysTickUs);
 
 dTaskRef dTaskCreate(struct dTaskParams *taskParams);
+/// 调试用: 同 dTaskCreate, 额外给任务挂个名字(仅用于上位机识别)。
+/// 名字放在栈底下方的前缀里, 不占栈空间; 一段都不传时行为与 dTaskCreate 相同。
+dTaskRef dTaskDebugCreat(struct dTaskParams *taskParams, const char *taskName);
+/// 同上, 但创建后初始为挂起态(给紧缩任务这类"按需唤醒"的任务用)
+dTaskRef dTaskDebugCreatSuspend(struct dTaskParams *taskParams, const char *taskName);
 dTaskRef dTaskCreateSuspend(struct dTaskParams *taskParams);
 struct dTaskParams dTaskInherit(dTaskRef * parentTask, dtFunction dtFunc);      //未实现
 
